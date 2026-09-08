@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open House | Meissa Bienestar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #0a0a0c;
+            --card-bg: rgba(18, 18, 24, 0.95);
+            --neon-pink: #ff2a85;
+            --neon-cyan: #00f0ff;
+            --neon-gold: #f39c12;
+            --text-main: #ffffff;
+            --text-muted: #a0a0c0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            background-image: radial-gradient(circle at 50% 20%, #1a102f 0%, var(--bg-deep) 70%);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 42, 133, 0.3);
+            padding: 24px;
+            border-radius: 24px;
+            box-shadow: 0 0 30px rgba(255, 42, 133, 0.15);
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .badge-evento {
+            background: rgba(255, 42, 133, 0.15);
+            color: var(--neon-pink);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 42, 133, 0.3);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: 21px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        h1 span {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        p {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .ubicacion-info {
+            font-size: 11px;
+            color: var(--neon-gold);
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-size: 10px;
+            color: var(--neon-cyan);
+            margin-bottom: 3px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
+        }
+
+        /* Checkbox RGPD */
+        .rgpd-container {
+            display: flex;
+            align-items: flex-start;
+            text-align: left;
+            margin: 10px 0;
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+
+        .rgpd-container input {
+            width: 15px;
+            height: 15px;
+            margin-right: 8px;
+            margin-top: 2px;
+            accent-color: var(--neon-pink);
+            cursor: pointer;
+        }
+
+        .btn-neon {
+            background: linear-gradient(135deg, var(--neon-pink), #b80058);
+            color: var(--text-main);
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 5px;
+            box-shadow: 0 0 12px rgba(255, 42, 133, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-neon:hover {
+            box-shadow: 0 0 20px var(--neon-pink);
+            transform: translateY(-2px);
+        }
+
+        .btn-neon:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Ruleta Neón 3D */
+        .wheel-container {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            margin: 10px auto;
+            border-radius: 50%;
+            padding: 4px;
+            background: linear-gradient(45deg, var(--neon-pink), var(--neon-cyan), var(--neon-gold));
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #000;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 18px solid var(--neon-cyan);
+            filter: drop-shadow(0 0 6px var(--neon-cyan));
+            z-index: 10;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        #result-box {
+            background: rgba(0, 240, 255, 0.05);
+            border: 1px dashed var(--neon-cyan);
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        #result-box h3 {
+            color: var(--neon-cyan);
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .serial-code {
+            font-size: 16px;
+            font-weight: 700;
+            background: rgba(0, 0, 0, 0.8);
+            color: var(--neon-gold);
+            padding: 6px 10px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-top: 4px;
+            letter-spacing: 2px;
+            border: 1px solid rgba(243, 156, 18, 0.3);
+        }
+
+        .legal-footer {
+            font-size: 8px;
+            color: #555;
+            margin-top: 12px;
+            line-height: 1.2;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- VISTA 1: REGISTRO -->
+        <div id="step-register">
+            <div class="badge-evento">📅 Único Día: Este Jueves</div>
+            <h1>Meissa <span>Bienestar</span></h1>
+            <p>Gira la ruleta y participa en nuestro Puertas Abiertas exclusivo.</p>
+            <div class="ubicacion-info">📍 C/ Duque de Sesto, 35 (Madrid)</div>
+            
+            <div class="form-group">
+                <label>Nombre y Apellidos</label>
+                <input type="text" id="name" placeholder="Ej. Ana Gómez" required>
+            </div>
+            <div class="form-group">
+                <label>Teléfono / WhatsApp</label>
+                <input type="tel" id="phone" placeholder="Ej. +34 600 000 000" required>
+            </div>
+            <div class="form-group">
+                <label>Correo Electrónico</label>
+                <input type="email" id="email" placeholder="tucorreo@email.com" required>
+            </div>
+
+            <!-- RGPD ESPAÑA -->
+            <div class="rgpd-container">
+                <input type="checkbox" id="rgpd" required>
+                <label for="rgpd" style="color:var(--text-muted); font-size:9px; text-transform:none; font-weight:normal;">
+                    Acepto la política de privacidad y el tratamiento de mis datos para gestionar la invitación y cita del evento por Meissa Bienestar.
+                </label>
+            </div>
+
+            <button class="btn-neon" onclick="startWheel()">¡Girar la Ruleta!</button>
+        </div>
+
+        <!-- VISTA 2: RULETA (5 ITEMS CONFIGURADOS) -->
+        <div id="step-wheel" class="hidden">
+            <h1>¡Mucha Suerte, <span id="user-display"></span>!</h1>
+            <p>Descubre cuál será tu tratamiento de cortesía.</p>
+            
+            <div class="wheel-container">
+                <div class="pointer"></div>
+                <canvas id="canvas" width="400" height="400"></canvas>
+            </div>
+
+            <button class="btn-neon" id="spin-btn" onclick="spin()">¡GIRAR AHORA!</button>
+        </div>
+
+        <!-- VISTA 3: INVITACIÓN Y BOTÓN DE ENVÍO PARA ASIGNAR CITA -->
+        <div id="step-result" class="hidden">
+            <h1>🎉 ¡Premio Obtenido!</h1>
+            <p>Estás a un paso de asegurar tu visita este jueves.</p>
+            
+            <div id="result-box">
+                <h3 id="prize-text">Premio</h3>
+                <p>Tu Código Serial Asignado:</p>
+                <div class="serial-code" id="serial-code">MEISSA-000</div>
+            </div>
+
+            <p style="margin-top: 10px; font-size: 11px; color: var(--neon-cyan);">
+                Haz clic en el botón para enviar tu solicitud. Nos pondremos en contacto contigo para asignarte la **hora específica** de tu cita este jueves.
+            </p>
+
+            <button class="btn-neon" id="send-btn" onclick="enviarSolicitudCita()" style="background: linear-gradient(135deg, #00f0ff, #0077b6); color: #000; margin-top: 12px;">
+                📩 ENVIAR SOLICITUD Y ASIGNAR CITA
+            </button>
+
+            <p class="status-msg" id="submit-status" style="font-size: 11px; margin-top: 8px; color: #00ffcc;"></p>
+        </div>
+
+        <div class="legal-footer">
+            **Responsable:** Meissa Bienestar. **Finalidad:** Gestionar la invitación al evento y asignación de citas. **Derechos:** Puedes ejercer tus derechos de acceso, rectificación y supresión escribiendo a cdemoor80@gmail.com conforme al RGPD (UE) 2016/679.
+        </div>
+    </div>
+
+    <script>
+        // ESTRICTAMENTE LOS 5 ITEMS INDICADOS
+        const sectors = [
+            { color: "#1a0b2e", text: "Maderoterapia" },
+            { color: "#0f2027", text: "Masaje Relajante" },
+            { color: "#2c1600", text: "Drenaje Linfatico" },
+            { color: "#111f11", text: "Focalizada Combinada" },
+            { color: "#2b0a1a", text: "Tu Preferido" }
+        ];
+
+        const ctx = document.getElementById('canvas').getContext('2d');
+        const numSectors = sectors.length;
+        let startAngle = 0;
+        let currentAngle = 0;
+        let isSpinning = false;
+        
+        let userData = { name: "", phone: "", email: "", prize: "", serial: "" };
+
+        function startWheel() {
+            userData.name = document.getElementById('name').value.trim();
+            userData.phone = document.getElementById('phone').value.trim();
+            userData.email = document.getElementById('email').value.trim();
+            const rgpdChecked = document.getElementById('rgpd').checked;
+
+            if (!userData.name || !userData.phone || !userData.email) {
+                alert("Por favor, completa todos los campos requeridos.");
+                return;
+            }
+
+            if (!rgpdChecked) {
+                alert("Debes aceptar la política de protección de datos para continuar.");
+                return;
+            }
+
+            document.getElementById('user-display').innerText = userData.name;
+            document.getElementById('step-register').classList.add('hidden');
+            document.getElementById('step-wheel').classList.remove('hidden');
+            drawWheel(0);
+        }
+
+        function drawWheel(angleOffset) {
+            ctx.clearRect(0, 0, 400, 400);
+            const sliceAngle = (Math.PI * 2) / numSectors;
+
+            for (let i = 0; i < numSectors; i++) {
+                const angle = angleOffset + i * sliceAngle;
+                
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(200, 200, 190, angle, angle + sliceAngle, false);
+                ctx.arc(200, 200, 0, angle + sliceAngle, angle, true);
+                ctx.fillStyle = sectors[i].color;
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = "#ff2a85";
+                ctx.stroke();
+                ctx.restore();
+
+                ctx.save();
+                ctx.translate(200, 200);
+                ctx.rotate(angle + sliceAngle / 2);
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "bold 13px Poppins";
+                ctx.fillText(sectors[i].text, 40, 5);
+                ctx.restore();
+            }
+        }
+
+        function spin() {
+            if (isSpinning) return;
+            isSpinning = true;
+            document.getElementById('spin-btn').disabled = true;
+
+            // Giros completos aleatorios (entre 6 y 9 vueltas)
+            const minVueltas = 6;
+            const maxVueltas = 9;
+            const vueltasTotales = Math.floor(Math.random() * (maxVueltas - minVueltas + 1)) + minVueltas;
+            
+            const extraAngle = Math.random() * (Math.PI * 2);
+            const targetAngle = currentAngle + (vueltasTotales * Math.PI * 2) + extraAngle;
+            
+            const duracionTotalMs = 6000; // 6 segundos exactos de giro fluido
+            const startTime = performance.now();
+
+            function animateSpin(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duracionTotalMs, 1);
+                
+                // Función de desaceleración cúbica (easeOutCubic)
+                const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+                
+                currentAngle = startAngle + (targetAngle - startAngle) * easeOutCubic;
+                drawWheel(currentAngle);
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateSpin);
+                } else {
+                    startAngle = currentAngle % (Math.PI * 2);
+                    isSpinning = false;
+                    calcularPremioFinal();
+                }
+            }
+
+            requestAnimationFrame(animateSpin);
+        }
+
+        function calcularPremioFinal() {
+            const normalizedAngle = (currentAngle % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+            const pointerAngle = (Math.PI * 1.5 - normalizedAngle + Math.PI * 2) % (Math.PI * 2);
+            const sliceAngle = (Math.PI * 2) / numSectors;
+            
+            const winningIndex = Math.floor(pointerAngle / sliceAngle) % numSectors;
+            const winningSector = sectors[winningIndex];
+
+            userData.prize = winningSector.text;
+            userData.serial = 'MS-JUEVES-' + Math.floor(100 + Math.random() * 900);
+
+            setTimeout(() => {
+                document.getElementById('step-wheel').classList.add('hidden');
+                document.getElementById('step-result').classList.remove('hidden');
+                document.getElementById('prize-text').innerText = userData.prize;
+                document.getElementById('serial-code').innerText = userData.serial;
+            }, 600);
+        }
+
+        function enviarSolicitudCita() {
+            const btn = document.getElementById('send-btn');
+            btn.disabled = true;
+            btn.innerText = "ENVIANDO...";
+
+            const formspreeEndpoint = "https://formspree.io/f/moeqpwva";
+
+            const data = {
+                email: "cdemoor80@gmail.com",
+                subject: `🎯 ¡Solicitud de Cita Open House (Jueves)!: ${userData.name}`,
+                mensaje: `El usuario ha presionado el botón de enviar para reclamar su cita:\n\n- Nombre: ${userData.name}\n- WhatsApp: ${userData.phone}\n- Correo: ${userData.email}\n- Premio Ruleta: ${userData.prize}\n- Serie: ${userData.serial}\n\n*Pendiente de asignar hora específica para este jueves en Duque de Sesto 35.*`
+            };
+
+            fetch(formspreeEndpoint, {
+                method: "POST",
+                headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if(response.ok) {
+                    document.getElementById('submit-status').innerText = "✅ ¡Solicitud enviada con éxito! Nos comunicaremos contigo para darte tu hora.";
+                    btn.innerText = "¡SOLICITUD ENVIADA!";
+                } else {
+                    document.getElementById('submit-status').innerText = "⚠️ Error al enviar. Envía captura por WhatsApp.";
+                    btn.disabled = false;
+                }
+            })
+            .catch(error => {
+                document.getElementById('submit-status').innerText = "⚠️ Error de conexión. Presenta tu código en el local.";
+                btn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>

@@ -86,6 +86,26 @@
             font-weight: 600;
         }
 
+        /* --- NUEVO ESTILO: Alerta de Información --- */
+        .alert-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            background: rgba(0, 240, 255, 0.05);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .alert-info span {
+            font-size: 10px;
+            color: var(--neon-cyan);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
         .form-group {
             margin-bottom: 10px;
             text-align: left;
@@ -244,8 +264,14 @@
         <div id="step-register">
             <div class="badge-evento">📅 Único Día: Este Jueves</div>
             <h1>Meissa <span>Bienestar</span></h1>
-            <p>Gira la ruleta y participa en nuestro Puertas Abiertas exclusivo.</p>
+            <p>Gira la ruleta y participa en nuestras Puertas Abiertas exclusivas.</p>
             <div class="ubicacion-info">📍 C/ Duque de Sesto, 35 (Madrid)</div>
+            
+            <!-- NUEVA INFORMACIÓN AGREGADA -->
+            <div class="alert-info">
+                <span>⚠️ Solo puedes participar una vez</span>
+                <span>⏳ Tiempo limitado por sesión</span>
+            </div>
             
             <div class="form-group">
                 <label>Nombre y Apellidos</label>
@@ -286,8 +312,8 @@
 
         <!-- VISTA 3: INVITACIÓN Y BOTÓN DE ENVÍO PARA ASIGNAR CITA -->
         <div id="step-result" class="hidden">
-            <h1>🎉 ¡Premio Obtenido!</h1>
-            <p>Estás a un paso de asegurar tu visita este jueves.</p>
+            <h1 id="result-title">🎉 ¡Premio Obtenido!</h1>
+            <p id="result-subtitle">Estás a un paso de asegurar tu visita este jueves.</p>
             
             <div id="result-box">
                 <h3 id="prize-text">Premio</h3>
@@ -312,6 +338,31 @@
     </div>
 
     <script>
+        // COMPROBACIÓN DE LOCAL STORAGE AL CARGAR LA PÁGINA
+        document.addEventListener("DOMContentLoaded", () => {
+            if (localStorage.getItem("meissa_participated") === "true") {
+                // Ocultar registro, mostrar resultado
+                document.getElementById('step-register').classList.add('hidden');
+                document.getElementById('step-result').classList.remove('hidden');
+                
+                // Cargar datos guardados
+                document.getElementById('prize-text').innerText = localStorage.getItem("meissa_prize");
+                document.getElementById('serial-code').innerText = localStorage.getItem("meissa_serial");
+                
+                // Modificar textos para indicar que ya participó
+                document.getElementById('result-title').innerText = "✅ Ya tienes un premio";
+                document.getElementById('result-subtitle').innerText = "Recuerda que la participación está limitada a una por persona.";
+                
+                // Si ya había enviado el correo, deshabilitar botón
+                if (localStorage.getItem("meissa_sent") === "true") {
+                    const btn = document.getElementById('send-btn');
+                    btn.disabled = true;
+                    btn.innerText = "¡SOLICITUD YA ENVIADA!";
+                    document.getElementById('submit-status').innerText = "Tu cita está en proceso de asignación.";
+                }
+            }
+        });
+
         // ESTRICTAMENTE LOS 5 ITEMS INDICADOS
         const sectors = [
             { color: "#1a0b2e", text: "Maderoterapia" },
@@ -384,7 +435,6 @@
             isSpinning = true;
             document.getElementById('spin-btn').disabled = true;
 
-            // Giros completos aleatorios (entre 6 y 9 vueltas)
             const minVueltas = 6;
             const maxVueltas = 9;
             const vueltasTotales = Math.floor(Math.random() * (maxVueltas - minVueltas + 1)) + minVueltas;
@@ -392,14 +442,13 @@
             const extraAngle = Math.random() * (Math.PI * 2);
             const targetAngle = currentAngle + (vueltasTotales * Math.PI * 2) + extraAngle;
             
-            const duracionTotalMs = 6000; // 6 segundos exactos de giro fluido
+            const duracionTotalMs = 6000; 
             const startTime = performance.now();
 
             function animateSpin(currentTime) {
                 const elapsed = currentTime - startTime;
                 const progress = Math.min(elapsed / duracionTotalMs, 1);
                 
-                // Función de desaceleración cúbica (easeOutCubic)
                 const easeOutCubic = 1 - Math.pow(1 - progress, 3);
                 
                 currentAngle = startAngle + (targetAngle - startAngle) * easeOutCubic;
@@ -428,6 +477,11 @@
             userData.prize = winningSector.text;
             userData.serial = 'MS-JUEVES-' + Math.floor(100 + Math.random() * 900);
 
+            // GUARDAR DATOS EN LOCAL STORAGE PARA EVITAR DOBLE PARTICIPACIÓN
+            localStorage.setItem("meissa_participated", "true");
+            localStorage.setItem("meissa_prize", userData.prize);
+            localStorage.setItem("meissa_serial", userData.serial);
+
             setTimeout(() => {
                 document.getElementById('step-wheel').classList.add('hidden');
                 document.getElementById('step-result').classList.remove('hidden');
@@ -443,10 +497,18 @@
 
             const formspreeEndpoint = "https://formspree.io/f/moeqpwva";
 
+            // Si se recupera desde el LocalStorage (y userData no tiene los campos de texto), 
+            // no enviará el nombre. Esta pequeña validación previene el error.
+            const nameToSend = userData.name || "Usuario Previo";
+            const phoneToSend = userData.phone || "Registrado Local";
+            const emailToSend = userData.email || "Registrado Local";
+            const prizeToSend = userData.prize || localStorage.getItem("meissa_prize");
+            const serialToSend = userData.serial || localStorage.getItem("meissa_serial");
+
             const data = {
                 email: "cdemoor80@gmail.com",
-                subject: `🎯 ¡Solicitud de Cita Open House (Jueves)!: ${userData.name}`,
-                mensaje: `El usuario ha presionado el botón de enviar para reclamar su cita:\n\n- Nombre: ${userData.name}\n- WhatsApp: ${userData.phone}\n- Correo: ${userData.email}\n- Premio Ruleta: ${userData.prize}\n- Serie: ${userData.serial}\n\n*Pendiente de asignar hora específica para este jueves en Duque de Sesto 35.*`
+                subject: `🎯 ¡Solicitud de Cita Open House (Jueves)!: ${nameToSend}`,
+                mensaje: `El usuario ha presionado el botón de enviar para reclamar su cita:\n\n- Nombre: ${nameToSend}\n- WhatsApp: ${phoneToSend}\n- Correo: ${emailToSend}\n- Premio Ruleta: ${prizeToSend}\n- Serie: ${serialToSend}\n\n*Pendiente de asignar hora específica para este jueves en Duque de Sesto 35.*`
             };
 
             fetch(formspreeEndpoint, {
@@ -456,6 +518,8 @@
             })
             .then(response => {
                 if(response.ok) {
+                    // GUARDAR ESTADO DE ENVÍO
+                    localStorage.setItem("meissa_sent", "true");
                     document.getElementById('submit-status').innerText = "✅ ¡Solicitud enviada con éxito! Nos comunicaremos contigo para darte tu hora.";
                     btn.innerText = "¡SOLICITUD ENVIADA!";
                 } else {
